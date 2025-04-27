@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stay Safe Online</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e6f7ff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #007acc;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .dropzone {
+      width: 250px;
+      min-height: 300px;
+      padding: 10px;
+      border: 2px dashed #333;
+      border-radius: 10px;
+      background-color: #ffffff;
+    }
+    .ok {
+      background-color: #ccffcc;
+    }
+    .careful {
+      background-color: #ffffcc;
+    }
+    .never {
+      background-color: #ffcccc;
+    }
+    .dropzone h2 {
+      color: #333;
+    }
+    #items {
+      margin-top: 20px;
+      min-height: 150px;
+      border: 2px dashed #aaa;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .item {
+      margin: 10px;
+      padding: 10px;
+      background-color: #b3e5fc;
+      border-radius: 5px;
+      cursor: grab;
+      font-weight: bold;
+      display: inline-block;
+    }
+    #feedback {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .correct {
+      color: green;
+    }
+    .wrong {
+      color: red;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 24px;
+      color: green;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Stay Safe Online</h1>
+<p>Drag the items into the correct box!</p>
+
+<div id="items">
+  <div class="item" draggable="true" id="favoriteColor">favorite color</div>
+  <div class="item" draggable="true" id="hobbies">hobbies</div>
+  <div class="item" draggable="true" id="petName">your pet’s name</div>
+  <div class="item" draggable="true" id="afterSchool">after-school activities</div>
+  <div class="item" draggable="true" id="birthday">birthday</div>
+  <div class="item" draggable="true" id="city">city or town</div>
+  <div class="item" draggable="true" id="parentsInfo">parents’ information</div>
+  <div class="item" draggable="true" id="homeAddress">home address</div>
+  <div class="item" draggable="true" id="phoneNumber">phone number</div>
+  <div class="item" draggable="true" id="fullName">full name</div>
+</div>
+
+<div class="container">
+  <div class="dropzone ok" id="okZone">
+    <h2>OK to Share</h2>
+  </div>
+  <div class="dropzone careful" id="carefulZone">
+    <h2>Be Careful</h2>
+  </div>
+  <div class="dropzone never" id="neverZone">
+    <h2>Never Share</h2>
+  </div>
+</div>
+
+<div id="feedback"></div>
+<div id="result">You did it!</div>
+
+<script>
+  const items = document.querySelectorAll('.item');
+  const okZone = document.getElementById('okZone');
+  const carefulZone = document.getElementById('carefulZone');
+  const neverZone = document.getElementById('neverZone');
+  const itemContainer = document.getElementById('items');
+  const feedback = document.getElementById('feedback');
+  const result = document.getElementById('result');
+
+  const correctAnswers = {
+    "favoriteColor": "okZone",
+    "hobbies": "okZone",
+    "petName": "okZone",
+    "afterSchool": "carefulZone",
+    "birthday": "carefulZone",
+    "city": "carefulZone",
+    "parentsInfo": "neverZone",
+    "homeAddress": "neverZone",
+    "phoneNumber": "neverZone",
+    "fullName": "neverZone"
+  };
+
+  let placed = {};
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', dragStart);
+  });
+
+  [okZone, carefulZone, neverZone].forEach(zone => {
+    zone.addEventListener('dragover', dragOver);
+    zone.addEventListener('drop', dropItem);
+  });
+
+  function dragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.id);
+  }
+
+  function dragOver(e) {
+    e.preventDefault();
+  }
+
+  function dropItem(e) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    const item = document.getElementById(id);
+
+    if (e.target.id === correctAnswers[id]) {
+      e.target.appendChild(item);
+      placed[id] = e.target.id;
+      feedback.textContent = "✔ Correct!";
+      feedback.className = "correct";
+    } else {
+      feedback.textContent = "✘ Wrong! Try again.";
+      feedback.className = "wrong";
+      itemContainer.appendChild(item); // 把錯的直接放回原本區域
+      delete placed[id]; // 保持正確計算
+    }
+
+    checkAllPlaced();
+  }
+
+  function checkAllPlaced() {
+    if (Object.keys(placed).length === 10) {
+      let allCorrect = true;
+      for (let id in correctAnswers) {
+        if (placed[id] !== correctAnswers[id]) {
+          allCorrect = false;
+          break;
+        }
+      }
+      if (allCorrect) {
+        result.style.display = 'block';
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
